@@ -662,6 +662,29 @@ function updateUI() {
     stateComplete.classList.add('hidden');
     timerControlBtn.classList.add('hidden'); // Hide timer button by default
 
+    // Direct DOM queries instead of using variables declared later in the code
+    const roomsTitle = document.getElementById('all-rooms-title');
+    const roomsPanel = document.getElementById('all-rooms-panel');
+    
+    // Only manipulate room toggle and panel if they exist in the DOM
+    if (roomsTitle && roomsPanel) {
+        // Manage visibility of the rooms toggle and panel based on game state
+        if (gameState === 'ROLL_DICE' && !diceRolling) {
+            // Only show Rooms toggle on initial screen and when dice aren't rolling
+            roomsTitle.style.display = 'inline-block';
+        } else {
+            // Hide Rooms toggle when dice are rolling, timer started, or game complete
+            roomsTitle.style.display = 'none';
+            
+            // Also collapse the rooms panel if expanded
+            if (roomsPanel.classList.contains('rooms-panel-expanded')) {
+                roomsPanel.classList.remove('rooms-panel-expanded');
+                roomsPanel.style.maxHeight = '0px';
+                roomsPanel.style.bottom = '0px';
+            }
+        }
+    }
+
     // Show current state
     if (gameState === 'ROLL_DICE') {
         stateRollRoom.classList.remove('hidden');
@@ -708,12 +731,6 @@ function updateUI() {
 function populateAllRoomsList() {
     if (!allRoomsListEl) return; // Safety check
     
-    // Update the title dynamically
-    if (allRoomsTitleEl) {
-        const roomCount = allRooms.length;
-        allRoomsTitleEl.textContent = `${roomCount} Possible Rooms`;
-    }
-
     allRoomsListEl.innerHTML = ''; // Clear existing list
     const sortedRooms = [...allRooms].sort(); // Sort alphabetically
     
@@ -1254,6 +1271,12 @@ function handleRollStart(event) {
     if (diceRolling || gameState !== 'ROLL_DICE') return;
     if (event.type === 'touchstart') event.preventDefault();
 
+    // Hide the Manage Rooms toggle immediately when starting a roll
+    const roomsTitle = document.getElementById('all-rooms-title');
+    if (roomsTitle) {
+        roomsTitle.style.display = 'none';
+    }
+
     holdStartTime = Date.now();
     // Reset glow variables
     rollRoomBtn.style.setProperty('--glow-blur', '0px');
@@ -1516,6 +1539,41 @@ const resetRoomsBtn = document.getElementById('reset-rooms-btn');
 if (resetRoomsBtn) {
     resetRoomsBtn.addEventListener('click', resetAllRooms);
 }
-// --------------------------------------------------
+
+// --- Mobile Accordion Toggle for Rooms Panel --- (Adjusted Logic)
+const allRoomsTitle = document.getElementById('all-rooms-title');
+const allRoomsPanel = document.getElementById('all-rooms-panel');
+
+if (allRoomsTitle && allRoomsPanel && uiContainer) {
+    allRoomsTitle.addEventListener('click', () => {
+        // Check if the panel is currently expanded by checking for the class
+        const isExpanded = allRoomsPanel.classList.contains('rooms-panel-expanded');
+        const uiContainerHeight = uiContainer.offsetHeight;
+
+        if (isExpanded) {
+            // --- Collapse the panel ---
+            allRoomsPanel.classList.remove('rooms-panel-expanded');
+            allRoomsPanel.style.maxHeight = '0px';
+            allRoomsPanel.style.bottom = '0px'; // Animate back to bottom
+            allRoomsTitle.setAttribute('aria-expanded', 'false');
+             // Update toggle text/icon with UP arrow when closed
+            allRoomsTitle.textContent = 'Manage Rooms ▲'; 
+        } else {
+            // --- Expand the panel ---
+            allRoomsPanel.classList.add('rooms-panel-expanded');
+            // Set bottom position to the top of the ui-container
+            allRoomsPanel.style.bottom = `${uiContainerHeight}px`; 
+            // Set max-height to allow content visibility (e.g., 50vh or calculate)
+            allRoomsPanel.style.maxHeight = '50vh'; 
+            allRoomsTitle.setAttribute('aria-expanded', 'true');
+            // Update toggle text/icon with DOWN arrow when open
+            allRoomsTitle.textContent = 'Hide Rooms ▼'; 
+        }
+    });
+    // Initialize aria-expanded attribute
+    allRoomsTitle.setAttribute('aria-expanded', 'false'); 
+} else {
+    console.error("Could not find elements for mobile accordion (uiContainer, allRoomsTitle, or allRoomsPanel).");
+}
 
 animate(); // Start the animation loop

@@ -9,18 +9,18 @@
 <body>
     <div id="app">
         <div id="ui-container">
-            <h1 id="title">Chore Dice Roller</h1>
-
+            <!-- Toggle with correct initial arrow direction (up) -->
+            <h3 id="all-rooms-title">Manage Rooms ▲</h3>
+            
             <!-- State: Roll Dice (both at once) -->
             <div id="state-roll-room" class="game-state">
-                <p>Click the button to roll the dice and find out which room and how much time to spend!</p>
+                <p>Hold & Release to roll the dice!</p> 
                 <button id="roll-room-btn">Roll Dice</button>
             </div>
 
             <!-- State: Timer -->
             <div id="state-timer" class="game-state hidden">
-                <p>Chore: <strong id="chore-details">---</strong></p>
-                <h2>Time Remaining:</h2>
+                <p><strong id="chore-details">---</strong></p>
                 <div id="timer-display">00:00</div>
                 <button id="timer-control-btn" class="hidden">Start Timer</button>
             </div>
@@ -34,9 +34,9 @@
             </div>
         </div>
 
-        <!-- NEW: All Rooms Panel -->
+        <!-- NEW: All Rooms Panel (Title Removed) -->
         <div id="all-rooms-panel">
-            <h3 id="all-rooms-title">All Possible Rooms</h3>
+            <!-- <h3 id="all-rooms-title">All Possible Rooms</h3> -->
             
             <ul id="all-rooms-list">
                 <!-- Room list will be populated by JS -->
@@ -44,7 +44,6 @@
             
             <button id="reset-rooms-btn">Reset to Default Rooms</button>
             
-            <!-- Add room form (moved to bottom) -->
             <form id="add-room-form">
                 <input type="text" id="new-room-input" placeholder="Enter new room name">
                 <button type="submit" id="add-room-btn">Add</button>
@@ -56,7 +55,7 @@
     </div>
 
     <!-- Debug Button -->
-    <button id="debug-skip-timer-btn" style="position: fixed; bottom: 10px; right: 10px; z-index: 1000; padding: 5px 10px;">Debug: Skip Timer</button>
+    <!-- <button id="debug-skip-timer-btn" style="position: fixed; bottom: 10px; right: 10px; z-index: 1000; padding: 5px 10px;">Debug: Skip Timer</button> -->
 
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
