@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chore Dice Roller 3D</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="ui-container">
+            <h1 id="title">Chore Dice Roller</h1>
+
+            <!-- State: Roll Dice (both at once) -->
+            <div id="state-roll-room" class="game-state">
+                <p>Click the button to roll the dice and find out which room and how much time to spend!</p>
+                <button id="roll-room-btn">Roll Dice</button>
+            </div>
+
+            <!-- State: Timer -->
+            <div id="state-timer" class="game-state hidden">
+                <p>Chore: <strong id="chore-details">---</strong></p>
+                <h2>Time Remaining:</h2>
+                <div id="timer-display">00:00</div>
+                <button id="timer-control-btn" class="hidden">Start Timer</button>
+            </div>
+
+            <!-- State: Complete -->
+            <div id="state-complete" class="game-state hidden">
+                <h2>Chore Complete!</h2>
+                <p>Well done!</p>
+                <div id="celebration-fx">🎉 Hooray! 🎉</div>
+                <button id="play-again-btn">Play Again</button>
+            </div>
+        </div>
+
+        <!-- NEW: All Rooms Panel -->
+        <div id="all-rooms-panel">
+            <h3 id="all-rooms-title">All Possible Rooms</h3>
+            
+            <ul id="all-rooms-list">
+                <!-- Room list will be populated by JS -->
+            </ul>
+            
+            <button id="reset-rooms-btn">Reset to Default Rooms</button>
+            
+            <!-- Add room form (moved to bottom) -->
+            <form id="add-room-form">
+                <input type="text" id="new-room-input" placeholder="Enter new room name">
+                <button type="submit" id="add-room-btn">Add</button>
+            </form>
+        </div>
+        <!-- END NEW -->
+
+        <canvas id="dice-canvas"></canvas>
+    </div>
+
+    <!-- Debug Button -->
+    <button id="debug-skip-timer-btn" style="position: fixed; bottom: 10px; right: 10px; z-index: 1000; padding: 5px 10px;">Debug: Skip Timer</button>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    <!-- OrbitControls needs to be compatible with the Three.js version -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <!-- Your Game Logic -->
+    <script src="script.js"></script>
+</body>
+</html>

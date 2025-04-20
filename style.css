@@ -1,0 +1,407 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    overflow: hidden; /* Prevent scrollbars from canvas */
+    height: 100%;
+    width: 100%;
+    background-color: #f0f0f0;
+}
+
+#app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex; /* Use flexbox for layout */
+    align-items: center;
+    justify-content: center;
+}
+
+#dice-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Behind UI */
+}
+
+#ui-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 2; /* Above canvas */
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 300px; /* Reduced width for better positioning */
+}
+
+h1 {
+    margin-top: 0;
+    color: #333;
+}
+
+h2 {
+    color: #555;
+}
+
+p {
+    margin: 15px 0;
+    color: #444;
+    line-height: 1.5;
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 10px;
+    /* Increased offset, blur, and opacity for more noticeable shadow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    background-color: #0056b3;
+    /* Enhanced shadow on hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+    background-color: #004085;
+    /* Slightly reduced shadow on active, but still noticeable */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+button:disabled {
+    background-color: #cccccc; /* Gray background */
+    color: #666666;       /* Darker gray text */
+    cursor: not-allowed;   /* Indicate non-interactive */
+    opacity: 0.6;          /* Make it slightly transparent */
+    box-shadow: none !important; /* Also remove drop shadow when disabled */
+}
+
+/* Styles specific to Roll Dice button */
+#roll-room-btn {
+    width: 90%; /* Set specific width */
+    margin-left: auto; /* Center with margin */
+    margin-right: auto;
+    display: block; /* Needed for margin auto centering */
+    background-color: #007bff; /* Base color */
+    /* Power-up fill effect */
+    background-image: linear-gradient(#ffc107, #ffc107); /* Amber/yellow fill color */
+    background-repeat: no-repeat;
+    background-position: 0 0; /* Start from left */
+    background-size: 0% 100%; /* Initial state: 0% filled */
+    
+    /* Glow effect variables */
+    --glow-blur: 0px;
+    --glow-spread: 0px;
+    --glow-alpha: 0;
+    /* COMBINED SHADOWS: Standard drop shadow + dynamic glow shadow */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), /* Standard drop shadow (matches button rule) */
+                0 0 var(--glow-blur) var(--glow-spread) rgba(255, 193, 7, var(--glow-alpha)); /* Dynamic glow */
+
+    /* Update transition */
+    transition: background-size 0.05s linear, 
+                background-color 0.3s ease, 
+                box-shadow 0.1s linear; /* Transition for fill, hover/active, and glow */
+}
+
+/* Ensure disabled roll button is gray and has no fill or glow */
+#roll-room-btn:disabled {
+    background-color: #cccccc !important; /* Force gray background */
+    background-image: none !important; /* Remove fill image */
+    /* Explicitly remove both shadows */
+    box-shadow: none !important; 
+    /* Inherits other disabled styles like color, cursor, opacity */
+}
+
+.game-state {
+    display: block; /* Show by default */
+}
+
+.hidden {
+    display: none; /* Hide elements */
+}
+
+#timer-display {
+    font-size: 3em;
+    font-weight: bold;
+    color: #000000; /* Black text (default) */
+    margin: 10px 0 20px;
+    background-color: #eee; /* Empty part color */
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #ffc107; /* Increased border width */
+    /* Progress bar styles */
+    background-image: linear-gradient(#ffc107, #ffc107); /* Amber/yellow fill color (match roll button) */
+    background-repeat: no-repeat;
+    background-position: 0 0; /* Start from left */
+    background-size: 0% 100%; /* Initial state: 0% filled */
+    transition: background-size 1s linear; /* Smooth transition for fill */
+    position: relative; 
+}
+
+/* Class to make timer text red when inactive */
+#timer-display.inactive-timer {
+    color: #dc3545; /* Red text */
+}
+
+#celebration-fx {
+    font-size: 2em;
+    margin: 20px 0;
+    color: #28a745;
+}
+
+/* Basic responsiveness */
+@media (max-width: 600px) {
+    #ui-container {
+        padding: 15px 20px;
+        max-width: 90%;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    #timer-display {
+        font-size: 2.5em;
+    }
+}
+
+/* Pulsing Animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
+
+/* Apply pulsing animation to the button */
+#timer-control-btn.pulsing {
+    animation: pulse 1.5s infinite;
+}
+
+/* Styles for the All Rooms Panel */
+#all-rooms-panel {
+    position: absolute;
+    top: 20px;      /* Align with main UI panel top */
+    right: 20px;    /* Position on the right side */
+    z-index: 2;     /* Above canvas */
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    max-width: 250px; /* Adjust width as needed */
+    max-height: calc(100% - 40px); /* Limit height */
+    overflow-y: auto; /* Add scroll if needed */
+}
+
+#all-rooms-panel h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+#all-rooms-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#all-rooms-list li {
+    padding: 4px 8px;
+    font-size: 0.9em;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    border-radius: 3px;
+    margin-bottom: 2px;
+    transition: background-color 0.2s ease;
+    box-shadow: none;
+}
+
+#all-rooms-list li:hover:not(.excluded-room) {
+    background-color: #e9ecef;
+    box-shadow: none;
+}
+
+#all-rooms-list li:last-child {
+    border-bottom: none;
+}
+
+#all-rooms-list li.crossed-out {
+    text-decoration: line-through;
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Style for user-excluded rooms */
+#all-rooms-list li.excluded-room {
+    color: #ff3333; /* Red text */
+    background-color: rgba(255, 0, 0, 0.05); /* Very light red background */
+    font-style: italic;
+    text-decoration: line-through; /* Keep line-through */
+    cursor: pointer; /* Indicate it's clickable */
+    box-shadow: none;
+}
+
+.room-item .room-name.excluded-room {
+    color: #ff3333; /* Red text */
+    text-decoration: line-through;
+    opacity: 0.8;
+}
+
+/* Style for randomly crossed-out rooms (not selected for current dice) */
+.crossed-out {
+    color: #888; /* Gray text */
+    font-style: italic;
+}
+
+/* Add cursor pointer to normal list items too */
+#all-rooms-list li:not(.excluded-room) {
+    cursor: pointer;
+}
+
+/* Room management styles */
+.room-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 2px;
+    border-radius: 2px;
+    margin-bottom: 2px;
+    background: transparent;
+    border-bottom: 1px solid #eee;
+}
+
+.room-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.room-item .room-name {
+    flex-grow: 1;
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+.room-actions {
+    display: flex;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Show delete button only on hover */
+.room-item:hover .room-actions {
+    opacity: 1;
+}
+
+.delete-room-btn {
+    background: rgba(255, 0, 0, 0.2);
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+}
+
+.delete-room-btn:hover {
+    background: rgba(255, 0, 0, 0.5);
+}
+
+.delete-room-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+#add-room-form {
+    display: flex;
+    gap: 5px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 15px;
+}
+
+#new-room-input {
+    flex-grow: 1;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+#add-room-btn {
+    background: rgba(0, 128, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-top: 0;
+}
+
+#add-room-btn:hover {
+    background: rgba(0, 128, 0, 0.8);
+}
+
+/* Update existing styles */
+.excluded-room {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+#reset-rooms-btn {
+    display: block;
+    width: 100%;
+    background: rgba(255, 165, 0, 0.2); /* Orange */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+#reset-rooms-btn:hover {
+    background: rgba(255, 165, 0, 0.4);
+}
+
+/* Highlight for rooms that are on the dice face */
+.room-item.active-room {
+    background-color: rgba(255, 215, 0, 0.15); /* Light yellow background */
+    border-left: 3px solid gold;
+}
+
+.room-item.active-room:hover {
+    background-color: rgba(255, 215, 0, 0.25); /* Slightly darker on hover */
+}
